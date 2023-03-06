@@ -14,7 +14,7 @@ class NoDiscoveryError(Exception):
     pass
 
 
-def discover() -> str:
+def discover(timeout=DISCOVER_MAXTIME) -> str:
     """Discover Calaos server on local networks
 
     This function sends a magic discovery packet on all network interfaces to
@@ -22,7 +22,8 @@ def discover() -> str:
 
     Return IP address of the first Calaos server to answer.
 
-    If no Calaos server answers within 10 seconds, raise NoDiscoveryError.
+    If no Calaos server answers within the provided timeout or the default
+     value of 10 seconds, raise NoDiscoveryError.
     """
 
     broadcast_addresses = []
@@ -40,7 +41,7 @@ def discover() -> str:
     sock.settimeout(DISCOVER_TIMEOUT)
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
     start = time.time()
-    while time.time() < start + DISCOVER_MAXTIME:
+    while time.time() < start + timeout:
         for addr in broadcast_addresses:
             sock.sendto(DISCOVER_MESSAGE, (addr, DISCOVER_UDP_PORT))
             try:

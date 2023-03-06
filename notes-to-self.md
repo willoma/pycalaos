@@ -15,4 +15,5 @@ python setup.py sdist
 3. Publish:
 
 ```plain
+twine upload dist/*
 ```
