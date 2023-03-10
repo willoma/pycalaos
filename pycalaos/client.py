@@ -34,7 +34,7 @@ class Room:
         return self._name
 
     @property
-    def name(self):
+    def type(self):
         return self._type
 
     @property
