@@ -96,15 +96,6 @@ class Client:
     def __repr__(self):
         return f"Calaos Client with {len(self.rooms)} rooms"
 
-    @property
-    def rooms(self):
-        return self._rooms
-
-    @property
-    def items(self):
-        """Items referenced by their IDs (dict of str: pycalaos.item.Item)"""
-        return self._items
-
     def reload_home(self):
         """Reload the complete home configuration, resetting rooms and items
 
@@ -173,3 +164,12 @@ class Client:
                     events.append(event)
         self._last_poll = now
         return events
+
+    @property
+    def rooms(self):
+        return self._rooms
+
+    @property
+    def items(self):
+        """Items referenced by their IDs (dict of str: pycalaos.item.Item)"""
+        return self._items
