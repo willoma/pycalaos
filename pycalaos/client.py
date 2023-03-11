@@ -180,6 +180,11 @@ class Client:
         """Items referenced by their IDs (dict of str: pycalaos.item.Item)"""
         return self._items
 
+    @property
+    def item_types(self):
+        """Complete list of item types present in this Calaos installation"""
+        return list(self._items_by_type.keys())
+
     def items_by_type(self, type):
         """Return only the items with the given type"""
         try:
