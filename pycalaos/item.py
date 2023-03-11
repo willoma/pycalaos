@@ -38,7 +38,7 @@ class Event:
 class Item:
     """An item in the Calaos installation"""
 
-    def __init__(self, data, conn, state_translator):
+    def __init__(self, data, room, conn, state_translator):
         self._id = data["id"]
         self._gui_type = data["gui_type"]
         self._io_type = data["io_type"]
@@ -47,6 +47,7 @@ class Item:
         self._type = data["type"]
         self._var_type = data["var_type"]
         self._visible = data["visible"] == "true"
+        self._room = room
         self._conn = conn
         self._state_translator = state_translator
 
@@ -88,6 +89,10 @@ class Item:
     def visible(self):
         return self._visible
 
+    @property
+    def room(self):
+        return self._room
+
     def _update_state(self, state):
         newState = self._state_translator.parse(state)
         if newState == self._state:
@@ -110,5 +115,5 @@ class Item:
             raise NotAnOutputError
 
 
-def _newItem(data, conn):
-    return Item(data, conn, _get_translation(data["type"]))
+def _newItem(data, room, conn):
+    return Item(data, room, conn, _get_translation(data["type"]))

@@ -112,7 +112,7 @@ class Client:
         for roomData in resp["home"]:
             room = Room(roomData["name"], roomData["type"])
             for itemData in roomData["items"]:
-                item = _newItem(itemData, self._conn)
+                item = _newItem(itemData, room, self._conn)
                 items[item._id] = item
                 room.addItem(item)
             rooms.append(room)
