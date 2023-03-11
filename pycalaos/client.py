@@ -109,15 +109,21 @@ class Client:
         })
         rooms = []
         items = {}
+        items_by_type = {}
         for roomData in resp["home"]:
             room = Room(roomData["name"], roomData["type"])
             for itemData in roomData["items"]:
                 item = _newItem(itemData, room, self._conn)
                 items[item._id] = item
+                try:
+                    items_by_type[item.type].append(item)
+                except KeyError:
+                    items_by_type[item.type] = [item]
                 room.addItem(item)
             rooms.append(room)
         self._rooms = rooms
         self._items = items
+        self._items_by_type = items_by_type
 
     def update_all(self):
         """Check all states and return events
@@ -173,3 +179,10 @@ class Client:
     def items(self):
         """Items referenced by their IDs (dict of str: pycalaos.item.Item)"""
         return self._items
+
+    def items_by_type(self, type):
+        """Return only the items with the given type"""
+        try:
+            return self._items_by_type[type]
+        except KeyError:
+            return []
