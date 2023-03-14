@@ -32,7 +32,7 @@ class Event:
     @property
     def state(self):
         """State for this event"""
-        return self._item
+        return self._state
 
 
 class Item:
