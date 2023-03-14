@@ -110,6 +110,7 @@ class Client:
         rooms = []
         items = {}
         items_by_type = {}
+        items_by_gui_type = {}
         for roomData in resp["home"]:
             room = Room(roomData["name"], roomData["type"])
             for itemData in roomData["items"]:
@@ -119,11 +120,16 @@ class Client:
                     items_by_type[item.type].append(item)
                 except KeyError:
                     items_by_type[item.type] = [item]
+                try:
+                    items_by_gui_type[item.gui_type].append(item)
+                except KeyError:
+                    items_by_gui_type[item.gui_type] = [item]
                 room.addItem(item)
             rooms.append(room)
         self._rooms = rooms
         self._items = items
         self._items_by_type = items_by_type
+        self._items_by_gui_type = items_by_gui_type
 
     def update_all(self):
         """Check all states and return events
@@ -189,5 +195,17 @@ class Client:
         """Return only the items with the given type"""
         try:
             return self._items_by_type[type]
+        except KeyError:
+            return []
+
+    @property
+    def item_gui_types(self):
+        """Complete list of item gui types present in this Calaos installation"""
+        return list(self._items_by_gui_type.keys())
+
+    def items_by_gui_type(self, type):
+        """Return only the items with the given gui type"""
+        try:
+            return self._items_by_gui_type[type]
         except KeyError:
             return []
