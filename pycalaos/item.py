@@ -1,10 +1,6 @@
 from enum import Enum
 
 
-class NotAnOutputError(Exception):
-    pass
-
-
 class Event:
     """An item state change event"""
 

@@ -1,2 +1,3 @@
-from pycalaos.client import Client
-from pycalaos.discovery import discover
+from .client import Client
+from .discovery import discover, NoDiscoveryError
+from .item import ClickType, NbClicks
