@@ -3,7 +3,7 @@ import ssl
 import time
 import urllib.request
 
-from .item import _newItem
+from .item import new_item
 
 # Calaos deletes registered polling uuids after 5 minutes
 POLLING_MAX_WAIT = 5 * 60
@@ -114,7 +114,7 @@ class Client:
         for roomData in resp["home"]:
             room = Room(roomData["name"], roomData["type"])
             for itemData in roomData["items"]:
-                item = _newItem(itemData, room, self._conn)
+                item = new_item(itemData, room, self._conn)
                 items[item._id] = item
                 try:
                     items_by_type[item.type].append(item)
@@ -142,7 +142,7 @@ class Client:
         })
         events = []
         for kv in resp.items():
-            evt = self.items[kv[0]]._update_state(kv[1])
+            evt = self.items[kv[0]].set_state(kv[1])
             if evt != None:
                 events.append(evt)
         return events
@@ -170,8 +170,11 @@ class Client:
             })
             events = []
             for rawEvent in resp["events"]:
-                item = self.items[rawEvent["data"]["id"]]
-                event = item._update_state(rawEvent["data"]["state"])
+                try:
+                    item = self.items[rawEvent["data"]["id"]]
+                except KeyError:
+                    continue
+                event = item.set_state(rawEvent["data"]["state"])
                 if event not in events and event != None:
                     events.append(event)
         self._last_poll = now

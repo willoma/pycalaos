@@ -6,4 +6,3 @@ pycalaos/__init__.py
 pycalaos/client.py
 pycalaos/discovery.py
 pycalaos/item.py
-pycalaos/state.py
