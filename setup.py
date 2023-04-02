@@ -6,7 +6,7 @@ long_description = (this_directory / "README.md").read_text()
 
 setup(
     name="pycalaos",
-    version="0.0.9",
+    version="0.0.12",
     description="Calaos home automation client library",
     long_description=long_description,
     long_description_content_type='text/markdown',

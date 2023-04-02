@@ -1,4 +1,7 @@
+import logging
 from enum import Enum
+
+_LOGGER = logging.getLogger(__name__)
 
 
 class Event:
@@ -92,11 +95,13 @@ class Item:
 
     def _set_state(self, state):
         if state == self._state:
-            return None
+            return False
         self._state = state
-        return Event(self)
+        return True
 
     def _send_set_state(self, value):
+        _LOGGER.debug(
+            f"Setting state of {self._id} ({self._name}) with value: {value}")
         self._conn.send({
             "action": "set_state",
             "type": self._type,

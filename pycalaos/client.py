@@ -1,9 +1,12 @@
 import json
+import logging
 import ssl
 import time
 import urllib.request
 
-from .item import new_item
+from .item import Event, new_item
+
+_LOGGER = logging.getLogger(__name__)
 
 # Calaos deletes registered polling uuids after 5 minutes
 POLLING_MAX_WAIT = 5 * 60
@@ -104,6 +107,7 @@ class Client:
 
         Return nothing
         """
+        _LOGGER.debug("Getting the whole home")
         resp = self._conn.send({
             "action": "get_home"
         })
@@ -136,15 +140,16 @@ class Client:
 
         Return events for states changes (list of pycalaos.item.Event)
         """
+        _LOGGER.debug("Getting all states from known items")
         resp = self._conn.send({
             "action": "get_state",
             "items": list(self.items.keys())
         })
         events = []
         for kv in resp.items():
-            evt = self.items[kv[0]].set_state(kv[1])
-            if evt != None:
-                events.append(evt)
+            changed = self.items[kv[0]].set_state(kv[1])
+            if changed:
+                events.append(Event(self.items[kv[0]]))
         return events
 
     def poll(self):
@@ -154,6 +159,7 @@ class Client:
         """
         now = time.time()
         if now - self._last_poll > POLLING_MAX_WAIT:
+            _LOGGER.debug("Registering to the polling")
             # If there is no existing poll queue, create a new one and
             # try to get new states for all items
             resp = self._conn.send({
@@ -168,16 +174,21 @@ class Client:
                 "type": "get",
                 "uuid": self._polling_id
             })
+            if len(resp['events']) > 0:
+                _LOGGER.debug(f"Raw events from polling: {resp['events']}")
             events = []
             for rawEvent in resp["events"]:
                 try:
                     item = self.items[rawEvent["data"]["id"]]
                 except KeyError:
                     continue
-                event = item.set_state(rawEvent["data"]["state"])
-                if event not in events and event != None:
+                item.set_state(rawEvent["data"]["state"])
+                event = Event(item)
+                if event not in events:
                     events.append(event)
         self._last_poll = now
+        if len(events) > 0:
+            _LOGGER.debug(f"Events: {events}")
         return events
 
     @property
