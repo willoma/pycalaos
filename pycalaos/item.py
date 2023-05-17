@@ -210,6 +210,7 @@ types = {
     # Inouts
     "scenario": Scenario,
     # Outputs
+    "var_bool": BinaryOutput,
     "light": BinaryOutput,
     "light_dimmer": PercentageOutput
 }
