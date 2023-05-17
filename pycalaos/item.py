@@ -219,4 +219,5 @@ def new_item(data, room, conn):
     try:
         return types[data["gui_type"]](data, room, conn)
     except:
-        return None
+        _LOGGER.error(f"Unknown Calaos item type, using generic item for: {data}")
+        return Item(data, room, conn)
