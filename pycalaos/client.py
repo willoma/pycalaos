@@ -4,7 +4,8 @@ import ssl
 import time
 import urllib.request
 
-from .item import Event, new_item
+from .item import new_item
+from .item.common import Event
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -136,7 +137,7 @@ class Client:
     def update_all(self):
         """Check all states and return events
 
-        Return events for states changes (list of pycalaos.item.Event)
+        Return events for states changes (list of pycalaos.item.common.Event)
         """
         _LOGGER.debug("Getting all states from known items")
         resp = self._conn.send(
@@ -152,7 +153,7 @@ class Client:
     def poll(self):
         """Change items states and return all events since the last poll
 
-        Return events for states changes (list of pycalaos.item.Event)
+        Return events for states changes (list of pycalaos.item.common.Event)
         """
         now = time.time()
         if now - self._last_poll > POLLING_MAX_WAIT:

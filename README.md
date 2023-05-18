@@ -11,14 +11,6 @@ Use `pycalaos.Client` to connect to the Calaos server.
 This library has been developed with
 [Home Assistant](https://www.home-assistant.io/) in mind.
 
-The library has initially been tested with a Wago 750-849 controller and:
-
-- single-click buttons
-- triple-click buttons
-- long-click buttons
-- binary output
-- DALI lights
-
 ## discover
 
 The `pycalaos.discover` function broadcasts a discovery message on the network
@@ -68,12 +60,12 @@ Rooms have the following properties:
 
 - `name`: name of the room
 - `type`: type from Calaos
-- `items`: items in that room, as a list of `pycalaos.item.Item` objects
+- `items`: items in that room, as a list of `pycalaos.item.common.Item` objects
 
 ## Item
 
-All Calaos IOs are represented in pycalaos as `pycalaos.item.Item` objects, or
-objects that inherit from this one.
+All Calaos IOs are represented in pycalaos as `pycalaos.item.common.Item`
+objects, or objects that inherit from this one.
 
 Items have the following properties:
 
@@ -88,67 +80,177 @@ Items have the following properties:
 - `visible`: "visible" according to Calaos
 - `room`: the `pycalaos.Room` object this item belongs to
 
-All items also have a `internal_set_state` function; it should not be used
+Items also have a `internal_set_state` function; it should not be used
 directly: it is used by the client in order to change stored value when
 receiving events.
 
 ## Event
 
-Each state change results in a `pycalaos.item.Event` object, when calling
+Each state change results in a `pycalaos.item.common.Event` object, when calling
 `client.update_all()` or `client.poll()`.
 
 Events have the following properties:
 
-- `item`: item the event is related to, as a `pycalaos.item.Item` object
+- `item`: item the event is related to, as a `pycalaos.item.common.Item` object
 - `state`: state for this event
 
 ## Calaos IOs vs pycalaos items mapping
 
 Mapping from Calaos IOs to pycalaos items is based on the gui_type:
 
-| Calaos gui_type    | pycalaos object  |
-| ------------------ | ---------------- |
-| **Inputs**         |
-| switch             | BinaryInput      |
-| switch3            | Switch3          |
-| switch_long        | SwitchLong       |
-| time_range         | BinaryInput      |
-| **Outputs**        |
-| light              | BinaryOutput     |
-| light_dimmer       | PercentageOutput |
-| var_bool           | BinaryOutput     |
-| **Inputs/outputs** |
-| scenario           | BinaryOutput     |
+| Calaos type     | pycalaos object         |
+| --------------- | ----------------------- |
+| **Generic**     |
+| InPlageHoraire  | io.InPlageHoraire       |
+| InputTime       | io.InputTime            |
+| InputTimer      | io.InputTimer           |
+| InternalBool    | io.InternalBool         |
+| InternalInt     | io.InternalInt          |
+| InternalString  | io.InternalString       |
+| Scenario        | io.Scenario             |
+| **Wago**        |
+| WIDigitalBP     | io.InputSwitch          |
+| WIDigitalLong   | io.InputSwitchLongPress |
+| WIDigitalTriple | io.InputSwitchTriple    |
+| WODali          | io.OutputLightDimmer    |
+| WODigital       | io.OutputLight          |
+| WOVoletSmart    | io.OutputShutterSmart   |
+| **Web**         |
+| WebInputAnalog  | io.InputAnalog          |
+| WebInputString  | io.InputString          |
+| WebInputTemp    | io.InputTemp            |
+| **Fallback**    |
+| Any other type  | common.Item             |
 
-### BinaryInput
+### common.Item
+
+- state: string
+- methods: none
+
+### io.InPlageHoraire
 
 - state: boolean: `True` or `False`
 - methods: none
 
-### BinaryOutput
+### io.InputAnalog
+
+- state: float
+- methods: none
+
+### io.InputString
+
+- state: string
+- methods: none
+
+### io.InputSwitch
+
+- state: boolean: `True` or `False`
+- methods: none
+
+### io.InputSwitchLongPress
+
+- state: `pycalaos.item.io.InputSwitchLongPressState`: `NONE`, `SHORT`, `LONG`
+- methods: none
+
+### io.InputSwitchTriple
+
+- state: `pycalaos.item.io.InputSwitchTripleState`: `NONE`, `SINGLE`, `DOUBLE`, `TRIPLE`
+- methods: none
+
+### io.InputTemp
+
+- state: float
+- methods: none
+
+### io.InputTime
+
+- state: boolean: `True` or `False`
+- methods: none
+
+### io.InputTimer
 
 - state: boolean: `True` or `False`
 - methods:
-  - `item.turn_on()`: turn the output on / open / activate / enable
-  - `item.turn_off()`: turn the output off / close / deactivate / disable
+  - `start()`: Start the timer
+  - `stop()`: Stop the timer
+  - `reset(hours, minutes, seconds, milliseconds)`: Reset the configured time to
+    a value. Format is h:m:s:ms
 
-### PercentageOutput
+### io.InternalBool
 
-- state: integer, between `0` and `100`
+- state: boolean: `True` or `False`
 - methods:
-  - `item.turn_on()`: turn the output on
-  - `item.turn_off()`: turn the output off
-  - `item.set_value(value: int)` : change the value of the output,
-    turning it on if it was off
-  - `item.set_value_off(value: int)` : change the value of the output,
-    without turning it on
+  - `true()`: Set a value to true
+  - `false()`: Set a value to false
+  - `toggle()`: Invert boolean value
+  - `impulse(*pattern)`: Do an impulse on boolean value with a pattern.
+    Arguments may be durations (in ms) or "old" to reset to the previous state
+    after the impulse
 
-### Switch3
+### io.InternalInt
 
-- state: `pycalaos.item.NbClick`: `NONE`, `SINGLE`, `DOUBLE`, `TRIPLE`
-- methods: none
+- state: integer
+- methods:
+  - `set(value)`: Set a specific integer value
+  - `inc()`: Increment value with configured step
+  - `dec()`: Decrement value with configured step
+  - `inc(value)`: Increment value by value
+  - `dec(value)`: Decrement value by value
 
-### SwitchLong
+### io.InternalString
 
-- state: `pycalaos.item.ClickTyoe`: `NONE`, `SHORT`, `LONG`
-- methods: none
+- state: string
+- methods:
+  - `set(value)`: Set a specific string value
+
+### io.OutputLight
+
+- state: boolean: `True` or `False`
+- methods:
+  - `true()`: Switch the light on
+  - `false()`: Switch the light off
+  - `toggle()`: Invert light state
+  - `impulse(*pattern)`: Do an impulse on light state with a pattern. Arguments
+    may be durations (in ms) or "old" to reset to the previous state after the
+    impulse
+
+### io.OutputLightDimmer
+
+- state: integer between 0 and 100
+- methods:
+  - `true()`: Switch the light on
+  - `false()`: Switch the light off
+  - `toggle()`: Invert light state
+  - `impulse(*pattern)`: Do an impulse on light state with a pattern. Arguments
+    may be durations (in ms) or "old" to reset to the previous state after the
+    impulse
+  - `set_off(value)`: Set light value without switching on. This will be the
+    light intensity for the next ON
+  - `set(value)`: Set light intensity and swith on if light is off
+  - `up(value)`: Increase intensity by X percent
+  - `down(value)`: Decrease intensity by X percent
+  - `hold_press()`: Dynamically change light intensity when holding a switch (press action)
+  - `hold_stop()`: Dynamically change light intensity when holding a switch (stop action)
+
+### io.OutputShutterSmart
+
+- state: string, either "calibration" or "up {percent}" or "down {percent}" or "stop {percent}" or " {percent}"
+- methods:
+  - `up()`: Open the shutter
+  - `down()`: Close the shutter
+  - `stop()`: Stop the shutter
+  - `toggle()`: Invert shutter state
+  - `impulse_up(duration)`: Open shutter for X ms
+  - `impulse_down(duration)`: Close shutter for X ms
+  - `set(value)`: Set shutter at position X in percent
+  - `up(value)`: Open the shutter by X percent
+  - `down(value)`: Close the shutter by X percent
+  - `calibrate()`: Start calibration on shutter. This opens fully the shutter
+    and resets all internal position values. Use this if shutter sync is lost.
+
+### io.Scenario
+
+- state: boolean: `True` or `False`
+- methods:
+  - `true()`: Start the scenario
+  - `false()`: Stop the scenario (only for special looping scenarios)
