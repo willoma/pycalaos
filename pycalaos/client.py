@@ -44,7 +44,7 @@ class Room:
     def items(self):
         return self._items
 
-    def addItem(self, item):
+    def _addItem(self, item):
         """Add a new item in the room
 
         Parameters:
@@ -128,7 +128,7 @@ class Client:
                     items_by_gui_type[item.gui_type].append(item)
                 except KeyError:
                     items_by_gui_type[item.gui_type] = [item]
-                room.addItem(item)
+                room._addItem(item)
             rooms.append(room)
         self._rooms = rooms
         self._items = items
@@ -147,7 +147,7 @@ class Client:
         })
         events = []
         for kv in resp.items():
-            changed = self.items[kv[0]].set_state(kv[1])
+            changed = self.items[kv[0]].internal_set_state(kv[1])
             if changed:
                 events.append(Event(self.items[kv[0]]))
         return events
@@ -182,7 +182,7 @@ class Client:
                     item = self.items[rawEvent["data"]["id"]]
                 except KeyError:
                     continue
-                item.set_state(rawEvent["data"]["state"])
+                item.internal_set_state(rawEvent["data"]["state"])
                 event = Event(item)
                 if event not in events:
                     events.append(event)

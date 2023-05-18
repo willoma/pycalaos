@@ -46,12 +46,15 @@ class Item:
         self._type = data["type"]
         self._var_type = data["var_type"]
         self._visible = data["visible"] == "true"
-        self.set_state(data["state"])
+        self.internal_set_state(data["state"])
         self._room = room
         self._conn = conn
 
     def __repr__(self):
         return f"{self.info} = {self.state}"
+
+    def internal_set_state(self, state):
+        self._set_state(state)
 
     @property
     def info(self):
@@ -100,18 +103,19 @@ class Item:
         return True
 
     def _send_set_state(self, value):
-        _LOGGER.debug(
-            f"Setting state of {self._id} ({self._name}) with value: {value}")
-        self._conn.send({
-            "action": "set_state",
-            "type": self._type,
-            "id": self._id,
-            "value": value
-        })
+        _LOGGER.debug(f"Setting state of {self._id} ({self._name}) with value: {value}")
+        self._conn.send(
+            {
+                "action": "internal_set_state",
+                "type": self._type,
+                "id": self._id,
+                "value": value,
+            }
+        )
 
 
 class BinaryInput(Item):
-    def set_state(self, state):
+    def internal_set_state(self, state):
         return self._set_state(state == "true")
 
 
@@ -137,7 +141,7 @@ class PercentageOutput(Item):
             value = 0
         return value
 
-    def set_state(self, state):
+    def internal_set_state(self, state):
         return self._set_state(PercentageOutput.translate(state))
 
     def turn_on(self):
@@ -154,28 +158,22 @@ class PercentageOutput(Item):
         self._send_set_state("false")
         self._state = 0
 
-    def set_brightness(self, brightness):
-        if brightness < 1:
-            brightness = 1
-        elif brightness > 100:
-            brightness = 100
-        self._send_set_state("set "+str(brightness))
-        self._state = brightness
+    def set_value(self, value):
+        if value < 1:
+            value = 1
+        elif value > 100:
+            value = 100
+        self._send_set_state("set " + str(value))
+        self._state = value
 
-    def set_brightness_off(self, brightness):
-        if brightness < 1:
-            brightness = 1
-        elif brightness > 100:
-            brightness = 100
-        self._send_set_state("set off "+str(brightness))
+    def set_value_off(self, value):
+        if value < 1:
+            value = 1
+        elif value > 100:
+            value = 100
+        self._send_set_state("set off " + str(value))
         if self._state != 0:
-            self._state = brightness
-
-
-class Scenario(BinaryInput):
-
-    def run(self):
-        self._send_set_state("true")
+            self._state = value
 
 
 class NbClicks(Enum):
@@ -186,7 +184,7 @@ class NbClicks(Enum):
 
 
 class Switch3(Item):
-    def set_state(self, state):
+    def internal_set_state(self, state):
         return self._set_state(NbClicks(int(state)))
 
 
@@ -197,22 +195,23 @@ class ClickType(Enum):
 
 
 class SwitchLong(Item):
-    def set_state(self, state):
+    def internal_set_state(self, state):
         return self._set_state(ClickType(int(state)))
 
 
+# When adding or modifying types, change the mapping section in README.md
 types = {
     # Inputs
     "switch": BinaryInput,
     "switch3": Switch3,
     "switch_long": SwitchLong,
     "time_range": BinaryInput,
-    # Inouts
-    "scenario": Scenario,
     # Outputs
-    "var_bool": BinaryOutput,
     "light": BinaryOutput,
-    "light_dimmer": PercentageOutput
+    "light_dimmer": PercentageOutput,
+    "var_bool": BinaryOutput,
+    # Inputs/outputs
+    "scenario": BinaryOutput,
 }
 
 
