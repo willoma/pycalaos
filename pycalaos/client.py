@@ -69,7 +69,7 @@ class _Conn:
         req = urllib.request.Request(
             self._uri,
             data=json.dumps(request).encode("ascii"),
-            headers={'Content-Type': 'application/json'}
+            headers={"Content-Type": "application/json"},
         )
         with urllib.request.urlopen(req, context=self._context) as response:
             return json.load(response)
@@ -108,9 +108,7 @@ class Client:
         Return nothing
         """
         _LOGGER.debug("Getting the whole home")
-        resp = self._conn.send({
-            "action": "get_home"
-        })
+        resp = self._conn.send({"action": "get_home"})
         rooms = []
         items = {}
         items_by_type = {}
@@ -141,10 +139,9 @@ class Client:
         Return events for states changes (list of pycalaos.item.Event)
         """
         _LOGGER.debug("Getting all states from known items")
-        resp = self._conn.send({
-            "action": "get_state",
-            "items": list(self.items.keys())
-        })
+        resp = self._conn.send(
+            {"action": "get_state", "items": list(self.items.keys())}
+        )
         events = []
         for kv in resp.items():
             changed = self.items[kv[0]].internal_set_state(kv[1])
@@ -162,19 +159,14 @@ class Client:
             _LOGGER.debug("Registering to the polling")
             # If there is no existing poll queue, create a new one and
             # try to get new states for all items
-            resp = self._conn.send({
-                "action": "poll_listen",
-                "type": "register"
-            })
+            resp = self._conn.send({"action": "poll_listen", "type": "register"})
             self._polling_id = resp["uuid"]
             events = self.update_all()
         else:
-            resp = self._conn.send({
-                "action": "poll_listen",
-                "type": "get",
-                "uuid": self._polling_id
-            })
-            if len(resp['events']) > 0:
+            resp = self._conn.send(
+                {"action": "poll_listen", "type": "get", "uuid": self._polling_id}
+            )
+            if len(resp["events"]) > 0:
                 _LOGGER.debug(f"Raw events from polling: {resp['events']}")
             events = []
             for rawEvent in resp["events"]:

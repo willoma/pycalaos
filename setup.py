@@ -9,7 +9,7 @@ setup(
     version="0.0.14",
     description="Calaos home automation client library",
     long_description=long_description,
-    long_description_content_type='text/markdown',
+    long_description_content_type="text/markdown",
     author="Sébastien Maccagnoni",
     author_email="sebastien@maccagnoni.eu",
     url="https://github.com/tiramiseb/pycalaos",
@@ -20,5 +20,5 @@ setup(
         "Operating System :: OS Independent",
     ],
     license="MIT",
-    requires=["netifaces"]
+    requires=["netifaces"],
 )

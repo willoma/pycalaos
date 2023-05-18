@@ -11,6 +11,7 @@ DISCOVER_MAXTIME = 10  # seconds
 
 class NoDiscoveryError(Exception):
     """This error indicates no Calaos server has been discovered"""
+
     pass
 
 
@@ -23,7 +24,7 @@ def discover(timeout=DISCOVER_MAXTIME) -> str:
     Return IP address of the first Calaos server to answer.
 
     If no Calaos server answers within the provided timeout or the default
-     value of 10 seconds, raise NoDiscoveryError.
+    value of 10 seconds, raise NoDiscoveryError.
     """
 
     broadcast_addresses = []

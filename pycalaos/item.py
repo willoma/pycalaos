@@ -36,6 +36,7 @@ class Event:
 
 class Item:
     """An item in the Calaos installation"""
+
     _state = None
 
     def __init__(self, data, room, conn):
@@ -120,7 +121,6 @@ class BinaryInput(Item):
 
 
 class BinaryOutput(BinaryInput):
-
     def turn_on(self):
         self._send_set_state("true")
         self._state = True
@@ -131,7 +131,6 @@ class BinaryOutput(BinaryInput):
 
 
 class PercentageOutput(Item):
-
     @staticmethod
     def translate(state):
         value = int(state)
@@ -146,12 +145,7 @@ class PercentageOutput(Item):
 
     def turn_on(self):
         self._send_set_state("true")
-        result = self._conn.send({
-            "action": "get_state",
-            "items": [
-                self._id
-            ]
-        })
+        result = self._conn.send({"action": "get_state", "items": [self._id]})
         self._state = PercentageOutput.translate(result[self._id])
 
     def turn_off(self):
