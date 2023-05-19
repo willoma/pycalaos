@@ -113,26 +113,20 @@ class Client:
         rooms = []
         items = {}
         items_by_type = {}
-        items_by_gui_type = {}
         for roomData in resp["home"]:
             room = Room(roomData["name"], roomData["type"])
             for itemData in roomData["items"]:
                 item = new_item(itemData, room, self._conn)
                 items[item._id] = item
                 try:
-                    items_by_type[item.type].append(item)
+                    items_by_type[type(item)].append(item)
                 except KeyError:
-                    items_by_type[item.type] = [item]
-                try:
-                    items_by_gui_type[item.gui_type].append(item)
-                except KeyError:
-                    items_by_gui_type[item.gui_type] = [item]
+                    items_by_type[type(item)] = [item]
                 room._addItem(item)
             rooms.append(room)
         self._rooms = rooms
         self._items = items
         self._items_by_type = items_by_type
-        self._items_by_gui_type = items_by_gui_type
 
     def update_all(self):
         """Check all states and return events
@@ -195,24 +189,12 @@ class Client:
 
     @property
     def item_types(self):
-        """Complete list of item types present in this Calaos installation"""
+        """Complete list of item types currently in use"""
         return list(self._items_by_type.keys())
 
     def items_by_type(self, type):
-        """Return only the items with the given type"""
+        """Return only the items of the given type"""
         try:
             return self._items_by_type[type]
-        except KeyError:
-            return []
-
-    @property
-    def item_gui_types(self):
-        """Complete list of item gui types present in this Calaos installation"""
-        return list(self._items_by_gui_type.keys())
-
-    def items_by_gui_type(self, type):
-        """Return only the items with the given gui type"""
-        try:
-            return self._items_by_gui_type[type]
         except KeyError:
             return []

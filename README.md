@@ -46,11 +46,9 @@ The client has the following methods and properties:
     change since the previous poll
 - `client.rooms`: rooms as a list of `pycalaos.client.Room`
 - `client.items`: items as dictionary of item ID to `pycalaos.item.Item`
-- `client.item_types`: list of item types present in this Calaos installation
-- `client.items_by_type(type: str)`: returns all items of that type
-- `client.item_gui_types`: list of item gui_types present in this Calaos
-  installation
-- `client.items_by_gui_type(type: str)`: returns all items of that gui_type
+- `client.item_types`: complete list of item types currently in use
+- `client.items_by_type(type: type)`: returns all items of that type (see types
+  in the 2nd columns of the mapping table)
 
 ## Room
 
@@ -98,7 +96,7 @@ Events have the following properties:
 
 Mapping from Calaos IOs to pycalaos items is based on the gui_type:
 
-| Calaos type     | pycalaos object         |
+| Calaos type     | pycalaos object type    |
 | --------------- | ----------------------- |
 | **Generic**     |
 | InPlageHoraire  | io.InPlageHoraire       |
