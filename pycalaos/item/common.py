@@ -121,3 +121,7 @@ class Item:
 
     def _translate(self, state):
         return state
+
+
+class Default(Item):
+    pass

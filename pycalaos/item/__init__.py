@@ -1,7 +1,6 @@
 import logging
 
-from .common import Item
-
+from .common import Default
 from . import io
 
 _LOGGER = logging.getLogger(__name__)
@@ -32,4 +31,4 @@ def new_item(data, room, conn):
         return types[data["type"]](data, room, conn)
     except:
         _LOGGER.error(f"Unknown Calaos item type, using generic item for: {data}")
-        return Item(data, room, conn)
+        return Default(data, room, conn)
