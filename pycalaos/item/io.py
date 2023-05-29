@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import Enum, StrEnum
 
 from .common import Item
 
@@ -221,7 +221,19 @@ class OutputLightDimmer(Item):
         self._update_state()
 
 
+class OutputShutterAction(StrEnum):
+    STATIONARY = ""
+    UP = "up"
+    DOWN = "down"
+    STOP = "stop"
+    CALIBRATION = "calibrate"
+
+
 class OutputShutterSmart(Item):
+    def _translate(self, state: str):
+        infos = state.split()
+        return {"action": OutputShutterAction(infos[0]), "position": int(infos[1])}
+
     def up(self):
         self._send("up")
 

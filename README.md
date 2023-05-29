@@ -234,7 +234,9 @@ Mapping from Calaos IOs to pycalaos items is based on the gui_type:
 
 ### io.OutputShutterSmart
 
-- state: string, either "calibration" or "up {percent}" or "down {percent}" or "stop {percent}" or " {percent}"
+- state: dictionary, with two elements:
+  - `action`: `pycalaos.item.io.OutputShutterAction`: `STATIONARY`, `UP`, `DOWN`, `STOP`, `CALIBRATION`
+  - `position`: integer between 0 and 100
 - methods:
   - `up()`: Open the shutter
   - `down()`: Close the shutter
