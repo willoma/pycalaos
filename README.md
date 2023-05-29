@@ -78,9 +78,11 @@ Items have the following properties:
 - `visible`: "visible" according to Calaos
 - `room`: the `pycalaos.Room` object this item belongs to
 
-Items also have a `internal_set_state` function; it should not be used
-directly: it is used by the client in order to change stored value when
-receiving events.
+Items also have the following functions for internal use
+(they should not be called directly):
+
+- `internal_set_state`
+- `internal_from_event`
 
 ## Event
 
@@ -172,7 +174,7 @@ Mapping from Calaos IOs to pycalaos items is based on the gui_type:
   - `start()`: Start the timer
   - `stop()`: Stop the timer
   - `reset(hours, minutes, seconds, milliseconds)`: Reset the configured time to
-    a value. Format is h:m:s:ms
+    a value
 
 ### io.InternalBool
 
