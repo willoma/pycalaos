@@ -119,7 +119,7 @@ class Item:
         result = self._conn.send({"action": "get_state", "items": [self._id]})
         self._state = self._translate(result[self._id])
 
-    def _translate(self, state):
+    def _translate(self, state: str):
         return state
 
 

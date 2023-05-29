@@ -22,13 +22,13 @@ section in the README) or create a new one.
 An item type must inherit `Item` and be declared in the `types` dictionary at
 the end of the `item.py` file.
 
-An item type may:
+An item type may have:
 
-- have an `_translate(self, state)` method, to translate from the Calaos
-  state value (as provided to `EventManager::create` in the Calaos source code)
-  to the pycalaos state value (optional if they are identical)
-- have other methods, to send commands to Calaos (ideally, these methods must be
+- a `_translate(self, state: str)` method, to translate from the Calaos state
+  value (see `EventManager::create` calls in the Calaos source code) to the
+  pycalaos state value (optional if they are identical, ie. raw strings)
+- other methods, to send commands to Calaos (ideally, these methods must be
   named after the actions decribed in the `ioDoc->actionAdd` calls)
 
 After creating a new item type, Add a line in the mapping table in `README.md`,
-and add a subsection.
+and add a subsection in the same section of the `README.md`.

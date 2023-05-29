@@ -4,12 +4,12 @@ from .common import Item
 
 
 class InPlageHoraire(Item):
-    def _translate(self, state):
+    def _translate(self, state: str):
         return state == "true"
 
 
 class InputAnalog(Item):
-    def _translate(self, state):
+    def _translate(self, state: str):
         return float(state)
 
 
@@ -18,7 +18,7 @@ class InputString(Item):
 
 
 class InputSwitch(Item):
-    def _translate(self, state):
+    def _translate(self, state: str):
         return state == "true"
 
 
@@ -29,7 +29,7 @@ class InputSwitchLongPressState(Enum):
 
 
 class InputSwitchLongPress(Item):
-    def _translate(self, state):
+    def _translate(self, state: str):
         return InputSwitchLongPressState(int(state))
 
 
@@ -41,22 +41,22 @@ class InputSwitchTripleState(Enum):
 
 
 class InputSwitchTriple(Item):
-    def _translate(self, state):
+    def _translate(self, state: str):
         return InputSwitchTripleState(int(state))
 
 
 class InputTemp(Item):
-    def _translate(self, state):
+    def _translate(self, state: str):
         return float(state)
 
 
 class InputTime(Item):
-    def _translate(self, state):
+    def _translate(self, state: str):
         return state == "true"
 
 
 class InputTimer(Item):
-    def _translate(self, state):
+    def _translate(self, state: str):
         return state == "true"
 
     def start(self):
@@ -73,7 +73,7 @@ class InputTimer(Item):
 
 
 class InternalBool(Item):
-    def _translate(self, state):
+    def _translate(self, state: str):
         return state == "true"
 
     def true(self):
@@ -98,7 +98,7 @@ class InternalBool(Item):
 
 
 class InternalInt(Item):
-    def _translate(self, state):
+    def _translate(self, state: str):
         return int(state)
 
     def set(self, value):
@@ -127,7 +127,7 @@ class InternalString(Item):
 
 
 class OutputLight(Item):
-    def _translate(self, state):
+    def _translate(self, state: str):
         return state == "true"
 
     def true(self):
@@ -152,7 +152,7 @@ class OutputLight(Item):
 
 
 class OutputLightDimmer(Item):
-    def _translate(self, state):
+    def _translate(self, state: str):
         value = int(state)
         if value > 100:
             value = 100
@@ -271,7 +271,7 @@ class OutputShutterSmart(Item):
 
 
 class Scenario(Item):
-    def _translate(self, state):
+    def _translate(self, state: str):
         return state == "true"
 
     def true(self):
