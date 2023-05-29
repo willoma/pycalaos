@@ -169,10 +169,9 @@ class Client:
                     item = self.items[rawEvent["data"]["id"]]
                 except KeyError:
                     continue
-                item.internal_set_state(rawEvent["data"]["state"])
-                event = Event(item)
-                if event not in events:
-                    events.append(event)
+                changed = item.internal_from_event(rawEvent["data"]["state"])
+                if changed:
+                    events.append(Event(item))
         self._last_poll = now
         if len(events) > 0:
             _LOGGER.debug(f"Events: {events}")

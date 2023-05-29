@@ -54,6 +54,9 @@ class Item:
         return f"{self.info} = {self.state}"
 
     def internal_set_state(self, state):
+        self._state = self._translate(state)
+
+    def internal_from_event(self, state):
         translated = self._translate(state)
         if translated == self._state:
             return False
