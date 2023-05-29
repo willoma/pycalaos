@@ -96,7 +96,7 @@ Events have the following properties:
 
 ## Calaos IOs vs pycalaos items mapping
 
-Mapping from Calaos IOs to pycalaos items is based on the gui_type:
+Mapping from Calaos IOs to pycalaos items is based on the Calaos type:
 
 | Calaos type     | pycalaos object type    |
 | --------------- | ----------------------- |
