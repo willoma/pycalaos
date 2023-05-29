@@ -1,0 +1,27 @@
+[project]
+name = "pycalaos"
+version = "0.0.20"
+authors = [
+	{ name = "Sébastien Maccagnoni", email = "sebastien@maccagnoni.eu" },
+]
+description = "Calaos home automation client library"
+readme = "README.md"
+requires-python = ">=3.7"
+classifiers = [
+	"Programming Language :: Python :: 3",
+	"License :: OSI Approved :: MIT License",
+	"Operating System :: OS Independent",
+]
+license = { file = "LICENSE.txt" }
+dependencies = [
+	"netifaces"
+]
+
+[project.urls]
+Homepage = "https://github.com/tiramiseb/pycalaos"
+Repository = "https://github.com/tiramiseb/pycalaos.git"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+

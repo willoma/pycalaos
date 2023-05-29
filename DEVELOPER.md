@@ -41,6 +41,6 @@ things too rarely to remember them correctly...
 Firstn change version in `setup.py`, then execute:
 
 ```plain
-python setup.py sdist
-twine upload dist/*
+python3 -m build
+python3 -m twine upload dist/*
 ```
