@@ -11,6 +11,11 @@ Use `pycalaos.Client` to connect to the Calaos server.
 This library has been developed with
 [Home Assistant](https://www.home-assistant.io/) in mind.
 
+## Notice
+
+This integration is an independent project: the Calaos team is by no means
+involved in its development.
+
 ## discover
 
 The `pycalaos.discover` function broadcasts a discovery message on the network

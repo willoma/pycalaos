@@ -1,8 +1,8 @@
 [project]
 name = "pycalaos"
-version = "0.0.22"
+version = "0.0.23"
 authors = [
-	{ name = "Sébastien Maccagnoni", email = "sebastien@maccagnoni.eu" },
+	{ name = "Willow Maccagnoni", email = "willow.maccagnoni@gmail.com" },
 ]
 description = "Calaos home automation client library"
 readme = "README.md"
@@ -18,8 +18,8 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/tiramiseb/pycalaos"
-Repository = "https://github.com/tiramiseb/pycalaos.git"
+Homepage = "https://github.com/willoma/pycalaos"
+Repository = "https://github.com/willoma/pycalaos.git"
 
 [build-system]
 requires = ["hatchling"]
