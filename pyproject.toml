@@ -1,6 +1,6 @@
 [project]
 name = "pycalaos"
-version = "0.0.21"
+version = "0.0.22"
 authors = [
 	{ name = "Sébastien Maccagnoni", email = "sebastien@maccagnoni.eu" },
 ]
