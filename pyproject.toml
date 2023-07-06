@@ -1,12 +1,12 @@
 [project]
 name = "pycalaos"
-version = "0.0.20"
+version = "0.0.21"
 authors = [
 	{ name = "Sébastien Maccagnoni", email = "sebastien@maccagnoni.eu" },
 ]
 description = "Calaos home automation client library"
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.11"
 classifiers = [
 	"Programming Language :: Python :: 3",
 	"License :: OSI Approved :: MIT License",
