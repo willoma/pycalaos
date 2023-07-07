@@ -234,12 +234,6 @@ class OutputShutterSmart(Item):
         infos = state.split()
         return {"action": OutputShutterAction(infos[0]), "position": int(infos[1])}
 
-    def up(self):
-        self._send("up")
-
-    def down(self):
-        self._send("down")
-
     def stop(self):
         self._send("stop")
         self._update_state()
@@ -262,20 +256,28 @@ class OutputShutterSmart(Item):
         self._send(f"set {value}")
         self._state = value
 
-    def up(self, value):
-        if value < 1:
-            value = 1
-        elif value > 100:
-            value = 100
-        self._send(f"up {value}")
+    def up(self, value=0):
+        if value == 0:
+            self._send(f"up")
+            return
+        else:
+            if value < 1:
+                value = 1
+            elif value > 100:
+                value = 100
+            self._send(f"up {value}")
         self._update_state()
 
-    def down(self, value):
-        if value < 1:
-            value = 1
-        elif value > 100:
-            value = 100
-        self._send(f"down {value}")
+    def down(self, value=0):
+        if value == 0:
+            self._send(f"down")
+            return
+        else:
+            if value < 1:
+                value = 1
+            elif value > 100:
+                value = 100
+            self._send(f"down {value}")
         self._update_state()
 
     def calibrate(self):
