@@ -244,9 +244,11 @@ class OutputShutterSmart(Item):
 
     def impulse_up(self, duration):
         self._send(f"impulse up {duration}")
+        self._update_state()
 
     def impulse_down(self, duration):
         self._send(f"impulse down {duration}")
+        self._update_state()
 
     def set(self, value):
         if value < 1:
@@ -254,7 +256,7 @@ class OutputShutterSmart(Item):
         elif value > 100:
             value = 100
         self._send(f"set {value}")
-        self._state = value
+        self._update_state()
 
     def up(self, value=0):
         if value == 0:
@@ -282,6 +284,7 @@ class OutputShutterSmart(Item):
 
     def calibrate(self):
         self._send(f"calibrate")
+        self._update_state()
 
 
 class Scenario(Item):
