@@ -163,15 +163,37 @@ class Client:
             )
             if len(resp["events"]) > 0:
                 _LOGGER.debug(f"Raw events from polling: {resp['events']}")
+
             events = []
             for rawEvent in resp["events"]:
                 try:
-                    item = self.items[rawEvent["data"]["id"]]
-                except KeyError:
+                    eventData = rawEvent["data"]
+                except:
+                    _LOGGER.error(f"Poll received event without data: {rawEvent}")
                     continue
-                changed = item.internal_from_event(rawEvent["data"]["state"])
+
+                try:
+                    itemID = eventData["id"]
+                except:
+                    _LOGGER.error(f"Poll received event without ID: {rawEvent}")
+                    continue
+
+                try:
+                    state = eventData["state"]
+                except:
+                    _LOGGER.debug(f"Poll received event without state: {rawEvent}")
+                    continue
+
+                try:
+                    item = self.items[itemID]
+                except KeyError:
+                    _LOGGER.error(f"Poll received event with unknown ID: {rawEvent}")
+                    continue
+
+                changed = item.internal_from_event(state)
                 if changed:
                     events.append(Event(item))
+
         self._last_poll = now
         if len(events) > 0:
             _LOGGER.debug(f"Events: {events}")
