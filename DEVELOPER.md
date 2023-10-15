@@ -38,7 +38,7 @@ and add a subsection in the same section of the `README.md`.
 These notes are here just in case I forget the process, because I do those
 things too rarely to remember them correctly...
 
-Firstn change version in `setup.py`, then execute:
+First, change version in `setup.py`, then execute:
 
 ```plain
 python3 -m build

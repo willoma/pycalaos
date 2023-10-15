@@ -9,10 +9,6 @@ from .item.common import Event
 
 _LOGGER = logging.getLogger(__name__)
 
-# Calaos deletes registered polling uuids after 5 minutes
-POLLING_MAX_WAIT = 5 * 60
-
-
 class Room:
     """A room in the Calaos configuration"""
 
@@ -45,7 +41,7 @@ class Room:
     def items(self):
         return self._items
 
-    def _addItem(self, item):
+    def _add_item(self, item):
         """Add a new item in the room
 
         Parameters:
@@ -75,6 +71,29 @@ class _Conn:
         with urllib.request.urlopen(req, context=self._context) as response:
             return json.load(response)
 
+def _poll_events_to_map(pollEvents):
+    events = {}
+    for rawEvent in pollEvents:
+        try:
+            eventData = rawEvent["data"]
+        except:
+            _LOGGER.debug(f"Poll received event without data: {rawEvent}")
+            continue
+
+        try:
+            key = eventData["id"]
+        except:
+            _LOGGER.debug(f"Poll received event without ID: {rawEvent}")
+            continue
+
+        try:
+            value = eventData["state"]
+        except:
+            _LOGGER.debug(f"Poll received event without state: {rawEvent}")
+            continue
+
+        events[key] = value
+    return events
 
 class Client:
     """A Calaos client"""
@@ -94,7 +113,6 @@ class Client:
         """
         self._conn = _Conn(uri, username, password)
         self._polling_id = None
-        self._last_poll = 0
         self.reload_home()
 
     def __repr__(self):
@@ -122,11 +140,30 @@ class Client:
                     items_by_type[type(item)].append(item)
                 except KeyError:
                     items_by_type[type(item)] = [item]
-                room._addItem(item)
+                room._add_item(item)
             rooms.append(room)
         self._rooms = rooms
         self._items = items
         self._items_by_type = items_by_type
+
+    def _register_polling(self):
+        resp = self._conn.send({"action": "poll_listen", "type": "register"})
+        self._polling_id = resp["uuid"]
+        return self.update_all()
+
+    def _update_from_map(self, eventsTuples):
+        events = []
+        for kv in eventsTuples:
+            try:
+                item = self.items[kv[0]]
+            except KeyError:
+                _LOGGER.debug(f"Calaos event with unknown ID: {kv[0]}")
+                continue
+
+            changed = item.internal_set_state(kv[1])
+            if changed:
+                events.append(Event(item))
+        return events
 
     def update_all(self):
         """Check all states and return events
@@ -137,66 +174,28 @@ class Client:
         resp = self._conn.send(
             {"action": "get_state", "items": list(self.items.keys())}
         )
-        events = []
-        for kv in resp.items():
-            changed = self.items[kv[0]].internal_set_state(kv[1])
-            if changed:
-                events.append(Event(self.items[kv[0]]))
-        return events
+        return self._update_from_map(resp.items())
 
     def poll(self):
         """Change items states and return all events since the last poll
 
         Return events for states changes (list of pycalaos.item.common.Event)
         """
-        now = time.time()
-        if now - self._last_poll > POLLING_MAX_WAIT:
+        if self._polling_id is None:
             _LOGGER.debug("Registering to the polling")
-            # If there is no existing poll queue, create a new one and
-            # try to get new states for all items
-            resp = self._conn.send({"action": "poll_listen", "type": "register"})
-            self._polling_id = resp["uuid"]
-            events = self.update_all()
+            events = self._register_polling()
         else:
             resp = self._conn.send(
                 {"action": "poll_listen", "type": "get", "uuid": self._polling_id}
             )
-            if len(resp["events"]) > 0:
-                _LOGGER.debug(f"Raw events from polling: {resp['events']}")
-
-            events = []
-            for rawEvent in resp["events"]:
-                try:
-                    eventData = rawEvent["data"]
-                except:
-                    _LOGGER.error(f"Poll received event without data: {rawEvent}")
-                    continue
-
-                try:
-                    itemID = eventData["id"]
-                except:
-                    _LOGGER.error(f"Poll received event without ID: {rawEvent}")
-                    continue
-
-                try:
-                    state = eventData["state"]
-                except:
-                    _LOGGER.debug(f"Poll received event without state: {rawEvent}")
-                    continue
-
-                try:
-                    item = self.items[itemID]
-                except KeyError:
-                    _LOGGER.error(f"Poll received event with unknown ID: {rawEvent}")
-                    continue
-
-                changed = item.internal_from_event(state)
-                if changed:
-                    events.append(Event(item))
-
-        self._last_poll = now
-        if len(events) > 0:
-            _LOGGER.debug(f"Events: {events}")
+            if resp["success"] == "true":
+                _LOGGER.debug("Polling new values")
+                events = self._update_from_map(
+                    _poll_events_to_map(resp["events"])
+                )
+            else:
+                _LOGGER.debug("Polling failed, re-registering")
+                events = self._register_polling()
         return events
 
     @property
