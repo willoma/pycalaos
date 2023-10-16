@@ -1,7 +1,6 @@
 import json
 import logging
 import ssl
-import time
 import urllib.request
 
 from .item import new_item
@@ -71,29 +70,6 @@ class _Conn:
         with urllib.request.urlopen(req, context=self._context) as response:
             return json.load(response)
 
-def _poll_events_to_map(pollEvents):
-    events = {}
-    for rawEvent in pollEvents:
-        try:
-            eventData = rawEvent["data"]
-        except:
-            _LOGGER.debug(f"Poll received event without data: {rawEvent}")
-            continue
-
-        try:
-            key = eventData["id"]
-        except:
-            _LOGGER.debug(f"Poll received event without ID: {rawEvent}")
-            continue
-
-        try:
-            value = eventData["state"]
-        except:
-            _LOGGER.debug(f"Poll received event without state: {rawEvent}")
-            continue
-
-        events[key] = value
-    return events
 
 class Client:
     """A Calaos client"""
@@ -151,20 +127,6 @@ class Client:
         self._polling_id = resp["uuid"]
         return self.update_all()
 
-    def _update_from_map(self, eventsTuples):
-        events = []
-        for kv in eventsTuples:
-            try:
-                item = self.items[kv[0]]
-            except KeyError:
-                _LOGGER.debug(f"Calaos event with unknown ID: {kv[0]}")
-                continue
-
-            changed = item.internal_set_state(kv[1])
-            if changed:
-                events.append(Event(item))
-        return events
-
     def update_all(self):
         """Check all states and return events
 
@@ -174,7 +136,18 @@ class Client:
         resp = self._conn.send(
             {"action": "get_state", "items": list(self.items.keys())}
         )
-        return self._update_from_map(resp.items())
+        events = []
+        for kv in resp.items():
+            try:
+                item = self.items[kv[0]]
+            except KeyError:
+                _LOGGER.debug(f"Calaos event with unknown ID: {kv[0]}")
+                continue
+
+            changed = item.internal_set_state(kv[1])
+            if changed:
+                events.append(Event(self.items[kv[0]]))
+        return events
 
     def poll(self):
         """Change items states and return all events since the last poll
@@ -183,19 +156,36 @@ class Client:
         """
         if self._polling_id is None:
             _LOGGER.debug("Registering to the polling")
-            events = self._register_polling()
+            return self._register_polling()
         else:
             resp = self._conn.send(
                 {"action": "poll_listen", "type": "get", "uuid": self._polling_id}
             )
-            if resp["success"] == "true":
-                _LOGGER.debug("Polling new values")
-                events = self._update_from_map(
-                    _poll_events_to_map(resp["events"])
-                )
-            else:
+            if resp["success"] != "true":
                 _LOGGER.debug("Polling failed, re-registering")
-                events = self._register_polling()
+                return self._register_polling()
+
+            events = []
+            for rawEvent in resp["events"]:
+                try:
+                    eventData = rawEvent["data"]
+                    itemID = eventData["id"]
+                    state = eventData["state"]
+                except:
+                    _LOGGER.debug(f"Bogus event: {rawEvent}")
+                    continue
+
+                try:
+                    item = self.items[itemID]
+                except KeyError:
+                    _LOGGER.error(f"Poll received event with unknown ID: {rawEvent}")
+                    continue
+
+                changed = item.internal_from_event(state)
+                if changed:
+                    events.append(Event(item))
+        if len(events) > 0:
+            _LOGGER.debug(f"Events: {events}")
         return events
 
     @property
