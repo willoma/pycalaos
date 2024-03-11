@@ -32,15 +32,3 @@ An item type may have:
 
 After creating a new item type, Add a line in the mapping table in `README.md`,
 and add a subsection in the same section of the `README.md`.
-
-## Publishing a release
-
-These notes are here just in case I forget the process, because I do those
-things too rarely to remember them correctly...
-
-First, change version in `setup.py`, then execute:
-
-```plain
-python3 -m build
-python3 -m twine upload dist/*
-```
