@@ -1,10 +1,12 @@
-import json
 import logging
-import ssl
-import urllib.request
+import requests
+import urllib3
 
 from .item import new_item
 from .item.common import Event
+
+# Disable SSL warning because the Calaos certificate is probably self-signed
+urllib3.disable_warnings()
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -57,18 +59,12 @@ class _Conn:
         self._uri = f"{uri}/api.php"
         self._username = username
         self._password = password
-        self._context = ssl._create_unverified_context()
 
     def send(self, request):
         request["cn_user"] = self._username
         request["cn_pass"] = self._password
-        req = urllib.request.Request(
-            self._uri,
-            data=json.dumps(request).encode("ascii"),
-            headers={"Content-Type": "application/json"},
-        )
-        with urllib.request.urlopen(req, context=self._context) as response:
-            return json.load(response)
+        response = requests.post(self._uri, verify=False, json=request)
+        return response.json()
 
 
 class Client:

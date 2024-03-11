@@ -1,6 +1,6 @@
 [project]
 name = "pycalaos"
-version = "0.0.28"
+version = "0.0.29"
 authors = [
 	{ name = "Willow Maccagnoni", email = "willow.maccagnoni@gmail.com" },
 ]
@@ -14,7 +14,8 @@ classifiers = [
 ]
 license = { file = "LICENSE.txt" }
 dependencies = [
-	"netifaces"
+	"netifaces",
+	"requests"
 ]
 
 [project.urls]
