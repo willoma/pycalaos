@@ -2,3 +2,5 @@
 /dist
 /pycalaos.egg-info
 __pycache__
+
+/credentials-*.json
